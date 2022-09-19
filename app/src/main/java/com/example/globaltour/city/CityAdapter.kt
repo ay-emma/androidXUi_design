@@ -24,12 +24,13 @@ class CityAdapter(val context : Context, var cityList : ArrayList<City> ) : Recy
         Log.i("CityAdapter", "onBindViewHolder: position: $position")
 
         cityViewHolder.setData( city, position )
+        cityViewHolder.setListeners()
 
     }
 
     override fun getItemCount(): Int = cityList.size
 
-    inner class CityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class CityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
 
         private var currentPosition : Int = -1
         private var currentCity : City? = null
@@ -56,5 +57,39 @@ class CityAdapter(val context : Context, var cityList : ArrayList<City> ) : Recy
             this.currentPosition = position
             this.currentCity = city
         }
+
+        fun setListeners() {
+            imvDelete.setOnClickListener(this@CityViewHolder)
+            imvFavourite.setOnClickListener(this@CityViewHolder)
+        }
+
+        override fun onClick(v: View?) {
+            when(v!!.id){
+                R.id.imv_delete -> deleteItem()
+                R.id.imv_favorite -> addFavourite()
+            }
+        }
+
+         private fun addFavourite() {
+            currentCity?.isFavorite = !(currentCity?.isFavorite!!)
+
+             if (currentCity?.isFavorite!!){ // update icon and add to favouritecity list
+                imvFavourite.setImageDrawable(icFavouriteFilledImage)
+                 VacationSpots.favoriteCityList.add(currentCity!!)
+
+             } else { // Update icon and remove object form favourite list
+                 imvFavourite.setImageDrawable(icFavouriteBorderImage)
+                 VacationSpots.favoriteCityList.remove(currentCity!!)
+
+             }
+        }
+
+         private fun deleteItem() {
+             cityList.removeAt(currentPosition)
+             notifyItemRemoved(currentPosition)
+             notifyItemRangeChanged(currentPosition, cityList.size )
+             VacationSpots.favoriteCityList.remove(currentCity!!)
+
+         }
     }
 }

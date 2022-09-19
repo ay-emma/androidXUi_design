@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.globaltour.R
 import com.example.globaltour.city.City
 import com.example.globaltour.city.VacationSpots
+import com.google.android.material.snackbar.Snackbar
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -47,7 +48,7 @@ class FavoriteFragment : Fragment() {
     }
 
     private val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-        ItemTouchHelper.UP or ItemTouchHelper.DOWN,0){
+        ItemTouchHelper.UP or ItemTouchHelper.DOWN,ItemTouchHelper.RIGHT){
 
         override fun onMove(
             recyclerView: RecyclerView,
@@ -64,8 +65,42 @@ class FavoriteFragment : Fragment() {
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            TODO("Not yet implemented")
+        //called when the item is swipped
+            val position = viewHolder.adapterPosition
+            val deleteCity: City = favoriteCityList[position]
+
+            deleteItem(position)
+            updateCityList(deleteCity, false )
+
+            Snackbar.make( recyclerView, "Deleted", Snackbar.LENGTH_LONG )
+                .setAction("UNDO"){
+                    undoDelete(position, deleteCity)
+                    updateCityList(deleteCity, true)
+                }
+                .show()
+
         }
 
     })
+
+
+
+    private fun deleteItem(position: Int) {
+        favoriteCityList.removeAt(position)
+       favoriteAdapter.notifyItemRemoved(position)
+      favoriteAdapter.notifyItemRangeChanged(position, favoriteCityList.size )
+    }
+
+    private fun updateCityList(deleteCity: City, isFavourite: Boolean) {
+
+        val cityList = VacationSpots.cityList!!
+        val position = cityList.indexOf(deleteCity)
+        cityList[position].isFavorite = isFavourite
+    }
+
+    private fun undoDelete(position: Int, deleteCity: City) {
+        favoriteCityList.add(position, deleteCity)
+        favoriteAdapter.notifyItemInserted(position)
+        favoriteAdapter.notifyItemRangeChanged(position, favoriteCityList.size)
+    }
 }

@@ -31,7 +31,9 @@ class MainActivity : AppCompatActivity() {
         val navHostFrag = supportFragmentManager.findFragmentById(R.id.nav_host_frag) as NavHostFragment
         navController   = navHostFrag.navController
         // Define appbar configuration
-        val appBarConfiguration = AppBarConfiguration(navController.graph, )
+        // This set tell android to not put the back button on the app bar
+        val topLevelDestinations = setOf(R.id.fragmentCityList, R.id.fragmentFavoriteList )
+        val appBarConfiguration = AppBarConfiguration(topLevelDestinations )
 
         //connect toolbar with navigation controller
         toolbar.setupWithNavController(navController, appBarConfiguration)
